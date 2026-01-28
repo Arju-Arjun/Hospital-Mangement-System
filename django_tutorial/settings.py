@@ -1,18 +1,15 @@
-"""
-Django settings for django_tutorial project.
-"""
-
 from pathlib import Path
+import os
+import dj_database_url  # optional if using PostgreSQL
 
-# Build paths
+# ================= BASE =================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # ================= SECURITY =================
-SECRET_KEY = 'django-insecure-uisrpk$5($3d%7nu(mfxi=(0ly19$*7hg^b70v9k9jnqn2wv3@'
-DEBUG = True
-ALLOWED_HOSTS = []
+SECRET_KEY = os.environ.get('SECRET_KEY', 'change-me-for-prod')  # use env variable
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
+ALLOWED_HOSTS = ['your-app-name.onrender.com', 'localhost', '127.0.0.1']
 
 # ================= APPLICATIONS =================
 INSTALLED_APPS = [
@@ -30,10 +27,10 @@ INSTALLED_APPS = [
     'widget_tweaks',
 ]
 
-
 # ================= MIDDLEWARE =================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -42,16 +39,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
 # ================= URLS =================
 ROOT_URLCONF = 'django_tutorial.urls'
-
 
 # ================= TEMPLATES =================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],   # global templates
+        'DIRS': [BASE_DIR / 'templates'],  # global templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,19 +59,15 @@ TEMPLATES = [
     },
 ]
 
-
 # ================= WSGI =================
 WSGI_APPLICATION = 'django_tutorial.wsgi.application'
 
-
 # ================= DATABASE =================
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3')
+    )
 }
-
 
 # ================= PASSWORD VALIDATION =================
 AUTH_PASSWORD_VALIDATORS = [
@@ -86,34 +77,24 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
 # ================= INTERNATIONALIZATION =================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-
-# ================= STATIC FILES (IMPORTANT) =================
+# ================= STATIC FILES =================
 STATIC_URL = '/static/'
-
-# Development static folders
-STATICFILES_DIRS = [
-    BASE_DIR / 'static'
-]
-
-# Production only (keep commented while developing)
-# STATIC_ROOT = BASE_DIR / 'staticfiles'
-
+STATICFILES_DIRS = [BASE_DIR / 'static']  # for development
+STATIC_ROOT = BASE_DIR / 'staticfiles'   # for Render / production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ================= MEDIA FILES =================
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'uploads'
 
-
 # ================= DEFAULT PK =================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 # ================= CRISPY / WIDGET =================
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
