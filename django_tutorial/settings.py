@@ -1,18 +1,22 @@
-from pathlib import Path
 import os
-import dj_database_url  # optional if using PostgreSQL
+from pathlib import Path
+import dj_database_url  # optional, if using PostgreSQL
 
-# ================= BASE =================
+# ========================
+# BASE DIR
+# ========================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ================= SECURITY =================
-SECRET_KEY = os.environ.get('SECRET_KEY', 'change-me-for-prod')  # use env variable
+# ========================
+# SECURITY
+# ========================
+SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')  # Render will provide this
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = ['hospital-mangement-system-9m7v.onrender.com']  # Render domain
 
-ALLOWED_HOSTS = ['hospital-mangement-system-9m7v.onrender.com']
-
-
-# ================= APPLICATIONS =================
+# ========================
+# INSTALLED APPS
+# ========================
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -20,15 +24,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # Local apps
-    'home',
-
-    # Third-party
+    'home',  # your app
     'widget_tweaks',
 ]
 
-# ================= MIDDLEWARE =================
+# ========================
+# MIDDLEWARE
+# ========================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # for static files
@@ -40,14 +42,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# ================= URLS =================
+# ========================
+# URLS & TEMPLATES
+# ========================
 ROOT_URLCONF = 'django_tutorial.urls'
 
-# ================= TEMPLATES =================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # global templates
+        'DIRS': [BASE_DIR / 'templates'],  # your templates folder
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -60,42 +63,56 @@ TEMPLATES = [
     },
 ]
 
-# ================= WSGI =================
 WSGI_APPLICATION = 'django_tutorial.wsgi.application'
 
-# ================= DATABASE =================
+# ========================
+# DATABASE
+# ========================
 DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3')
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
-# ================= PASSWORD VALIDATION =================
+# Optional PostgreSQL support for Render
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+
+# ========================
+# PASSWORD VALIDATION
+# ========================
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
-# ================= INTERNATIONALIZATION =================
+# ========================
+# INTERNATIONALIZATION
+# ========================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# ================= STATIC FILES =================
+# ========================
+# STATIC FILES (WHITENOISE)
+# ========================
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # for development
-STATIC_ROOT = BASE_DIR / 'staticfiles'   # for Render / production
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # where collectstatic puts files
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# ================= MEDIA FILES =================
+# ========================
+# MEDIA FILES
+# ========================
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'uploads'
 
-# ================= DEFAULT PK =================
+# ========================
+# DEFAULT PRIMARY KEY FIELD
+# ========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# ================= CRISPY / WIDGET =================
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
